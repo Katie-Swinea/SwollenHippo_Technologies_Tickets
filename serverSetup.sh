@@ -22,7 +22,7 @@ strTicketID=$(echo ${strURLArray} | jq -r .[${iteration}].ticketID)
 #debug statement used to output the ticket Id was extracted for each object in the array
 #echo $strTicketID
 
-if [ "$strTicketID" == "$1" ]; then
+if [ "$strTicketID" == "$2" ]; then
 strLogTitle="$strTicketID.log"
 #debug statment to ensure the title of the log file was created properly
 #echo $strLogTitle
@@ -36,14 +36,16 @@ strRequestor=$(echo ${strURLArray} | jq -r .[${iteration}].requestor)
 #echo $strRequestor
 echo "Requestor: $strRequestor" >> configurationLogs/$strLogTitle
 #external ip address is input as a parameter and can be passed directly to the file
-echo "External IP Address: $2" >> configurationLogs/$strLogTitle
+echo "External IP Address: $1" >> configurationLogs/$strLogTitle
 strHostname=$(echo $HOSTNAME)
 #debug statement to ensure the hostname has been stored in the variable
 #echo $strHostname
-echo "Hostname: strHostname" >> configurationLogs/$strLogTitle
+echo "Hostname: $strHostname" >> configurationLogs/$strLogTitle
 strStandardConfig=$(echo ${strURLArray} | jq -r .[${iteration}].standardConfig)
 #debug staement to see the standard configuration for the file
 #echo $strStandardConfig
+echo "Standard Configuration: $strStandardConfig" >> configurationLogs/$strLogTitle
+#used to get the information about software installations if applicable
 strSoftwarePackages=$(echo ${strURLArray} | jq -r .[${iteration}].softwarePackages)
 intSoftwarePackages=$(echo ${strSoftwarePackages} | jq 'length')
 intSoftwareCheck=0
@@ -57,10 +59,10 @@ strTask=$(echo ${strSoftwarePackages} | jq -r .[$intSoftwareCheck].name)
 strSoftwareInstall=$(echo ${strSoftwarePackages} | jq -r .[$intSoftwareCheck].install)
 #debug statement to ensure the install packages is being etracted properly
 #echo $strSoftwareInstall
-strTimeStamp=$(date +"%s")
+strTimeStamp1=$(date +"%s")
 #debug statement to ensure the timestamp is correct
-#echo $strTimeStamp
-echo "softwarePackage - $strTask - $strTimeStamp" >> configurationLogs/$strLogTitle
+#echo $strTimeStamp1
+echo "softwarePackage - $strTask - $strTimeStamp1" >> configurationLogs/$strLogTitle
 #used to install the specified packages
 sudo apt-get install $strSoftwareInstall -y
 ((intSoftwareCheck++))
@@ -79,15 +81,25 @@ strConfigTask=$(echo ${strAdditionalConfigs} | jq -r .[$intAddConfigCount].name)
 strConfiguration=$(echo ${strAdditionalConfigs} | jq -r .[$intAddConfigCount].config)
 #debug statement to ensure the configuration has been recieved
 #echo $strConfiguration
-strTimeStamp=$(date +"%s")
+strTimeStamp2=$(date +"%s")
 #debug statement to ensure the timestamp is correct
-#echo $strTimeStamp
-echo "additionalConfig - $strConfigtask - $strTimeStamp" >> configurationLogs/$strLogTitle
+#echo $strTimeStamp2
+echo "additionalConfig - $strConfigTask - $strTimeStamp2" >> configurationLogs/$strLogTitle
 #used to perform the configurations
 
 ((intAddConfigCount++))
 done
 
+#used for closing the ticket
+strBaseTicketCloseURL="https://www.swollenhippo.com/ServiceNow/systems/devTickets/completed.php?TicketID="
+strTicketClose="$strBaseTicketCloseURL$2"
+strTicketCloseResult=$(curl $strTicketClose)
+#debug statement to ensure the ticket's closing url was curled correctly
+#echo $strTicketCloseResult
+strTicketResult=$(echo ${strTicketCloseResult} | jq -r .outcome)
+echo $strTicketResult >> configurationLogs/$strLogTitle
+strEndTime=$(date +"%d-%b-%Y %H:%M")
+echo "Completed: $strEndTime" >> configurationLogs/$strLogTitle
 fi
 
 ((iteration++))
