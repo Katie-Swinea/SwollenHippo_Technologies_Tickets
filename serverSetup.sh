@@ -60,10 +60,32 @@ strSoftwareInstall=$(echo ${strSoftwarePackages} | jq -r .[$intSoftwareCheck].in
 strTimeStamp=$(date +"%s")
 #debug statement to ensure the timestamp is correct
 #echo $strTimeStamp
-echo "$strTask - $strSoftwareInstall - $strTimeStamp" >> configurationLogs/$strLogTitle
+echo "softwarePackage - $strTask - $strTimeStamp" >> configurationLogs/$strLogTitle
 #used to install the specified packages
 sudo apt-get install $strSoftwareInstall -y
 ((intSoftwareCheck++))
+done
+
+strAdditionalConfigs=$(echo ${strURLArray} | jq -r .[${iteration}].additionalConfigs)
+intAdditionalConfigs=$(echo ${strAdditionalConfigs} | jq 'length')
+intAddConfigCount=0
+
+#while loop is used to go through the software packages in the ticket if applicable
+while [ "$intAddConfigCount" -lt "$intAdditionalConfigs" ];
+do
+strConfigTask=$(echo ${strAdditionalConfigs} | jq -r .[$intAddConfigCount].name)
+#debug statement to check the while loop functionality and display the title of the configuration
+#echo $strConfigTask
+strConfiguration=$(echo ${strAdditionalConfigs} | jq -r .[$intAddConfigCount].config)
+#debug statement to ensure the configuration has been recieved
+#echo $strConfiguration
+strTimeStamp=$(date +"%s")
+#debug statement to ensure the timestamp is correct
+#echo $strTimeStamp
+echo "additionalConfig - $strConfigtask - $strTimeStamp" >> configurationLogs/$strLogTitle
+#used to perform the configurations
+
+((intAddConfigCount++))
 done
 
 fi
