@@ -9,6 +9,8 @@
 
 #used to update the machine once for software packages in the ticket
 sudo apt-get update
+#since jq is used within the shellscript, it needs to be installed
+sudo apt-get install jq
 strURLArray=$(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets.php)
 #debug statment to test for curled objects
 #echo ${strURLArray}
