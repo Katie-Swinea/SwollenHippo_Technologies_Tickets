@@ -30,7 +30,8 @@ if [ "$strTicketID" == "$2" ]; then
 strLogTitle="$strTicketID.log"
 #debug statment to ensure the title of the log file was created properly
 #echo $strLogTitle
-echo "TicketID: $strTicketID" >> configurationLogs/$strLogTitle
+#creates new log file for the ticket each time
+echo "TicketID: $strTicketID" > configurationLogs/$strLogTitle
 strDate=$(date +"%d-%b-%Y %H:%M")
 #debug statment to ensure the date is formatted correctly
 #echo $strDate
