@@ -1,7 +1,9 @@
 #! /bin/bash
 
-#Description: A file used to gather information from tickets, put them in the proper directory, and close
-# the tickets
+#Description: A file used to gather information from tickets in a log file, put the log file in the proper
+# directory, and close the tickets. The tickets software installations and configurations are also handled
+# through this script The version of any downloaded software is included in the log for the ticket. The
+# desired ticket is searched for in the array of tickets from the provided URL.
 #Author: Katie Swinea
 #Creation Date: 4/27/2024
 
@@ -86,7 +88,22 @@ strTimeStamp2=$(date +"%s")
 #echo $strTimeStamp2
 echo "additionalConfig - $strConfigTask - $strTimeStamp2" >> configurationLogs/$strLogTitle
 #used to perform the configurations
+strDirectoryPath=$(dirname $strConfiguration)
+#debug statement to ensure the path to the directory was properly extracted from the text
+#echo $strDirectoryPath
+strDirectories=$(echo $strDirectoryPath | cut -d '/' -f2-)
+#debug statement to ensure the contents of the mkdir command are formatted properly
+#echo $strDirectories
 
+#if statement used to determine if there is a diretory path that needs to be created
+if [ "$strDirectories" != "" ]; then
+mkdir -p $strDirectories
+fi
+
+strFinalConfiguration=$(echo $strConfiguration | sed 's#/##')
+#debug statement to ensure the first slash is removed becasue it ruins every command that tries to use it
+#echo $strFinalConfiguration
+eval ${strFinalConfiguration}
 ((intAddConfigCount++))
 done
 
