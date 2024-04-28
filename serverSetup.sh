@@ -47,10 +47,12 @@ strStandardConfig=$(echo ${strURLArray} | jq -r .[${iteration}].standardConfig)
 #debug staement to see the standard configuration for the file
 #echo $strStandardConfig
 echo "Standard Configuration: $strStandardConfig" >> configurationLogs/$strLogTitle
+
 #used to get the information about software installations if applicable
 strSoftwarePackages=$(echo ${strURLArray} | jq -r .[${iteration}].softwarePackages)
 intSoftwarePackages=$(echo ${strSoftwarePackages} | jq 'length')
 intSoftwareCheck=0
+intVersionCheck=0
 
 #while loop is used to go through the software packages in the ticket if applicable
 while [ "$intSoftwareCheck" -lt "$intSoftwarePackages" ];
@@ -59,7 +61,7 @@ strTask=$(echo ${strSoftwarePackages} | jq -r .[$intSoftwareCheck].name)
 #debug statement to check the while loop functionality and display the software to be installed
 #echo $strTask
 strSoftwareInstall=$(echo ${strSoftwarePackages} | jq -r .[$intSoftwareCheck].install)
-#debug statement to ensure the install packages is being etracted properly
+#debug statement to ensure the install packages is being extracted properly
 #echo $strSoftwareInstall
 strTimeStamp1=$(date +"%s")
 #debug statement to ensure the timestamp is correct
@@ -74,7 +76,7 @@ strAdditionalConfigs=$(echo ${strURLArray} | jq -r .[${iteration}].additionalCon
 intAdditionalConfigs=$(echo ${strAdditionalConfigs} | jq 'length')
 intAddConfigCount=0
 
-#while loop is used to go through the software packages in the ticket if applicable
+#while loop is used to go through the additional configurations in the ticket if applicable
 while [ "$intAddConfigCount" -lt "$intAdditionalConfigs" ];
 do
 strConfigTask=$(echo ${strAdditionalConfigs} | jq -r .[$intAddConfigCount].name)
@@ -105,6 +107,25 @@ strFinalConfiguration=$(echo $strConfiguration | sed 's#/##')
 #echo $strFinalConfiguration
 eval ${strFinalConfiguration}
 ((intAddConfigCount++))
+done
+
+#while loop is used to go through the software installed for a version check
+while [ "$intVersionCheck" -lt "$intSoftwarePackages" ];
+do
+strSoftwareDescription=$(echo ${strSoftwarePackages} | jq -r .[$intVersionCheck].name)
+#debug statement to ensure the description of the software that was installed
+#echo strSoftwareDescription
+strSoftwareInstalled=$(echo ${strSoftwarePackages} | jq -r .[$intVersionCheck].install)
+#debug statement to ensure the install packages is being extracted properly
+#echo $strSoftwareInstalled
+strVersion=$(apt show $strSoftwareInstalled | grep -i version | awk '{print $2}')
+#debug statement to ensure the version information was extracted
+#echo $strVersion
+intVersion=$(echo $strVersion | sed 's/^[^:]*://' | cut -d'-' -f1)
+#debug statement to ensure the version is being formatted correctly
+#echo $intVersion
+echo "Version Check - $strSoftwareDescription - $intVersion" >> configurationLogs/$strLogTitle
+((intVersionCheck++))
 done
 
 #used for closing the ticket
