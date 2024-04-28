@@ -1,3 +1,5 @@
+#!/bin/bash
+# Description: Copies and runs automation script on GCP remote server
 # Author: Ben Burchfield
 # Date: 17 April 2024
 strIP=$1
@@ -16,4 +18,5 @@ ssh-add .ssh/gcp
 
 scp -i .ssh/gcp serverSetup.sh "${strUsername}"@"${strIP}":/home/"${strUsername}"
 ssh ${strUsername}@${strIP} "chmod 755 serverSetup.sh"
+ssh ${strUsername}@${strIP} "sed -i 's/\r//' serverSetup.sh"
 ssh ${strUsername}@${strIP} "./serverSetup.sh ${strIP} ${strTicketID}"
