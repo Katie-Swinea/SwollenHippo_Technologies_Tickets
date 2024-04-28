@@ -9,6 +9,8 @@
 
 #used to update the machine once for software packages in the ticket
 sudo apt-get update
+#since jq is used within the shellscript, it needs to be installed
+sudo apt-get install jq
 strURLArray=$(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets.php)
 #debug statment to test for curled objects
 #echo ${strURLArray}
@@ -28,7 +30,8 @@ if [ "$strTicketID" == "$2" ]; then
 strLogTitle="$strTicketID.log"
 #debug statment to ensure the title of the log file was created properly
 #echo $strLogTitle
-echo "TicketID: $strTicketID" >> configurationLogs/$strLogTitle
+#creates new log file for the ticket each time
+echo "TicketID: $strTicketID" > configurationLogs/$strLogTitle
 strDate=$(date +"%d-%b-%Y %H:%M")
 #debug statment to ensure the date is formatted correctly
 #echo $strDate
